@@ -27,10 +27,14 @@ public class BbsRemote {
      * 2. POST
      * localhost:8090/bbs?type=all
      */
-    public static String BASE_URL = "http://192.168.0.140:8090/bbs/";
+    public static String BASE_URL = "http://192.168.0.140:8090/bbs";
     public static String TYPE_ALL = "?type=all";
     public static String TYPE_NO = "?type=no";
     public static String QUERY_NO = "&no=";
+    public static String QUERY_PAGE = "&page=";
+
+    public static int page = 1;
+
 
     public static void loadGet(final TaskInterface taskInterface, final String seq) {
 
@@ -40,8 +44,9 @@ public class BbsRemote {
                 String result = "";
                 if (seqs[0] == null || seqs[0].equals("")) {
                     // http://192.168.0.140:8090/bbs/?type=all
-                    result = BbsRemote.sendGet(BASE_URL + TYPE_ALL);
-                    Log.e("url 확인", BASE_URL + TYPE_ALL);
+                    result = BbsRemote.sendGet(BASE_URL + TYPE_ALL+QUERY_PAGE+page);
+                    page++;
+                    Log.e("url 확인", BASE_URL + TYPE_ALL+QUERY_PAGE+page);
                 } else {
                     // http://192.168.0.140:8090/bbs/?type=all&no=1
                     result = BbsRemote.sendGet(BASE_URL + TYPE_NO + QUERY_NO + seqs[0]);

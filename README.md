@@ -84,7 +84,7 @@ exports.read = function(request, response, search){
     // 넘겨줄 쿼리(read는 어떤 것을 읽을지 넘겨줘야 한다)
     var query = {};
     if(search.type === 'all'){
-        query = {};
+        query = {page:parseInt(search.page)};
     } else if(search.type === 'no'){
         query = {_id : -1};
 		query._is = ObjectId(search._id)
@@ -129,17 +129,27 @@ exports.create = function(bbs, callback){
 ```javaScript
 exports.read = function(search, callback){
     mongo.connect(dbUrl, (err, db)=>{
+        // 쿼리
         // var projection = {title:'1'};
         // var projection = {_id:1} // 1이면 가져오고 0이면 가져오지 않는다.
-        var sort = {
+        // 소팅
+        var s = {
             _id : -1 // 1:내림차순, -1:오름차순
         }
-        var cursor = db.collection(table).find(search /*, projection*/).sort(sort);    
+        // 시작점
+        // skip = 카운트를 시작할 index의 위치
+        // 가져올 개수
+        // limit
+        var start = (search.page -1)*pageCount; 
+        // 사용하지 않는 검색 컬럼 삭제
+        delete search.page;
+        var cursor = db.collection(table).find(search).sort(s).skip(start).limit(pageCount);    
         cursor.toArray((err, documents)=>{
             if(err){
+                callback(documents, err);
                 console.log(err);
             } else {
-                callback(documents);
+                callback(documents, err);
             }
         });
         db.close();
@@ -317,4 +327,120 @@ public static String sendGet(String address) {
     Log.e("결과", result);
     return result;
 }
+```
+
+### 페이지 제한하기
+
+    - RecyclerView의 addOnScrollListener, LayoutManager의 findFirstVisibleItemPosition()사용
+
+```java
+recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+    @Override
+    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+        super.onScrollStateChanged(recyclerView, newState);
+        // 멈춤 상태가 되면 데이터를 불러온다
+        if(newState == RecyclerView.SCROLL_STATE_IDLE && isLastItem){
+            BbsRemote.loadGet(MainActivity.this, null);
+        }
+    }
+
+    @Override
+    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        super.onScrolled(recyclerView, dx, dy);
+        // 리스트뷰와 다르게 레이아웃 매니저에서 꺼내 사용한다
+        int firstVisiblePosition = manager.findFirstVisibleItemPosition();
+        int lastVisiblePosition = manager.findLastVisibleItemPosition();
+        int visibleCount = manager.getChildCount();
+        int total = manager.getItemCount();
+
+        if(lastVisiblePosition == total-1){
+            isLastItem = true;
+        } else {
+            isLastItem = false;
+        }
+    }
+});
+```
+
+```java
+public void setData(Data[] newData) {
+    if (datas.length == 0) {
+        this.datas = newData;
+    } else {
+        Data[] temp = new Data[datas.length + newData.length];
+        // 1. 이놈을 2.여기서부터 3.temp배열에 4.temp의 0부터 5.datas의 길이만큼 복사한다
+        // 먼저 기존의 배열 복사
+        System.arraycopy(datas, 0, temp, 0, datas.length);
+        // 나중에 들어온 배열 복사
+        System.arraycopy(newData, 0, temp, datas.length, newData.length);
+        datas = temp;
+    }
+       notifyDataSetChanged();
+    Log.e("크기", datas.length+"");
+}
+```
+
+
+# 데이터베이스
+
+### 서버에 파일 전송
+
+```javaScript
+var server = http.createServer((request, response)=>{
+    if(request.url == "/upload"){
+        var form = new formidable.IncomingForm();
+        // 파일 2개 이상
+        form.multiples = true;
+        form.on('fileBegin', function (name, file){
+             // 파일이 들어오기 시작할 때
+             // 내가 원하는 경로에 파일이 저장되도로 하기 위해 경로 지정
+             file.path = './public/img/' + file.name;
+        });
+
+        form.parse(request, (err, fieldNames, files)=>{ // 임시폴더에 저장
+            console.log(files);
+            console.log(fieldNames);
+            if(err){
+                console.log(err);
+            } else {
+                // 멀티플로 설정한 경우는 배열에서 꺼내서 해야 한다
+                for(i in files){
+                    var oldpath = files[i].path;
+                    var realpath = "c:/temp/upload/"+files[i].name;
+                    fs.renameSync(oldpath, realpath);
+                }
+                response.end('complete');
+            }
+        })
+    } else {
+        response.end('404 not found');
+    }
+});
+```
+
+### MySql 데이터베이스 연결
+
+```java
+var mysql = require('mysql');
+
+var settings = {
+    host : "localhost",
+    user  : 'root',
+    password : 'mysql',
+    port:'3306',
+    database : 'memo'
+}
+
+var con = mysql.createConnection(settings);
+
+
+con.connect();
+con.query('select * from memo', (error, record_set, columns)=>{
+    record_set.forEach(function(record) {
+        console.log(record);
+    });
+    // this.end();     // 쿼리 처리에 대한 연결 해제
+});
+
+con.end();  // 데이터베이스 연결 해제
 ```

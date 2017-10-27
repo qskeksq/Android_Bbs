@@ -19,11 +19,13 @@ public class MainActivity extends AppCompatActivity implements TaskInterface {
     private Button post;
     private RecyclerView recyclerview;
     private RecyclerAdapter adapter;
+    private boolean isLastItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         BbsRemote.loadGet(this, null);
         initView();
         setRecyclerview();
@@ -36,8 +38,33 @@ public class MainActivity extends AppCompatActivity implements TaskInterface {
 
     private void setRecyclerview(){
         adapter = new RecyclerAdapter();
+        final LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerview.setAdapter(adapter);
-        recyclerview.setLayoutManager(new LinearLayoutManager(this));
+        recyclerview.setLayoutManager(manager);
+        recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(newState == RecyclerView.SCROLL_STATE_IDLE && isLastItem){
+                    BbsRemote.loadGet(MainActivity.this, null);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int firstVisiblePosition = manager.findFirstVisibleItemPosition();
+                int lastVisiblePosition = manager.findLastVisibleItemPosition();
+                int visibleCount = manager.getChildCount();
+                int total = manager.getItemCount();
+
+                if(lastVisiblePosition == total-1){
+                    isLastItem = true;
+                } else {
+                    isLastItem = false;
+                }
+            }
+        });
     }
 
     public void goDetail(View view){
@@ -61,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements TaskInterface {
     public void setData(Data[] datas) {
         adapter.setData(datas);
     }
-
 
     @Override
     public void setResult(Result result) {
