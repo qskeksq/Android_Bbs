@@ -1,8 +1,8 @@
 # Nodejs Bbs Server 
-    - 1. Server에서 서버 생성
-    - 2. 라우터에서 URL 분석 -> pathname, method 분석
-    - 3. 컨트롤러가 모든 내부 로직 처리
-    - 4. dao에 쿼리, 콜백 보내주기
+- 1. Server에서 서버 생성
+- 2. 라우터에서 URL 분석 -> pathname, method 분석
+- 3. 컨트롤러가 모든 내부 로직 처리
+- 4. dao에 쿼리, 콜백 보내주기
 
 # Server
 
