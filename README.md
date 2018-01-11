@@ -18,9 +18,9 @@ var server = http.createServer((request, response)=>{
 ```
 
 ## (2) Router.js 모듈
-    - url, querystring 모듈 사용 요청 url 분리 
-    - path 분기
-    - method 분기
+- url, querystring 모듈 사용 요청 url 분리 
+- path 분기
+- method 분기
 
 ```javaScript
 exports.process = function(request, response){
@@ -56,9 +56,9 @@ exports.process = function(request, response){
 ```
 
 ## (3) Controller 모듈
-    - 내부 로직 처리
-    - 쿼리 만들어 dao에 인자로 넘겨줌
-    - dao의 콜백 메소드 구현 장소
+- 내부 로직 처리
+- 쿼리 만들어 dao에 인자로 넘겨줌
+- dao의 콜백 메소드 구현 장소
 
 ### create
 
@@ -104,8 +104,8 @@ exports.read = function(request, response, search){
 ```
 
 ## (4) Dao 모듈
-    - 데이터베이스(mongo, mysql)에 connect/createConnect/커넥션 풀 생성
-    - 넘어온 데이터베이스에 쿼리(insert(), find(), update(), remove());
+- 데이터베이스(mongo, mysql)에 connect/createConnect/커넥션 풀 생성
+- 넘어온 데이터베이스에 쿼리(insert(), find(), update(), remove());
 
 ### Create
 
