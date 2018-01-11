@@ -331,7 +331,7 @@ public static String sendGet(String address) {
 
 ### 페이지 제한하기
 
-RecyclerView의 addOnScrollListener, LayoutManager의 findFirstVisibleItemPosition()사용
+- RecyclerView의 addOnScrollListener, LayoutManager의 findFirstVisibleItemPosition()사용
 
 ```java
 recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
